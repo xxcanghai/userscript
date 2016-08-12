@@ -7,9 +7,20 @@
 // @include      http://lego.waimai.sankuai.com/*
 // @exclude      http://lego.waimai.sankuai.com/preview
 // @grant        none
-// @require      https://raw.githubusercontent.com/xxcanghai/userscript/master/legoHelper/legoHelper.js
+// @require      https://code.jquery.com/jquery-1.12.4.js
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
+    var src = "https://raw.githubusercontent.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
+    
+    var script = document.createElement("script");
+    script.onload = onload;
+    script.src = src;
+    var head = document.getElementsByTagName("head")[0];
+    head.appendChild(script);
+
+    function onload(e) {
+        console.log("legoHelper loaded!");
+    }
 })();
