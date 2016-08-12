@@ -24,6 +24,8 @@
     //     // console.log("legoHelper loaded!");
     // }
 
-    $("body").append($("<script>").attr("src",src));
+    var t = new Date().getTime();
+
+    $("body").append($("<script>").attr("src", src + "?_=" + t));
 
 })();
