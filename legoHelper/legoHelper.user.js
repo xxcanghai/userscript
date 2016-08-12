@@ -3,11 +3,11 @@
 // @namespace    http://lego.waimai.sankuai.com/
 // @version      0.1
 // @description  为乐高项目增加辅助功能支持等
-// @author       jicanghai@meituan.com
+// @author       xxcanghai
 // @include      http://lego.waimai.sankuai.com/*
 // @exclude      http://lego.waimai.sankuai.com/preview
 // @grant        none
-// @require      file:///Users/jicanghai/WebSite/legoHelper/legoHelper.js
+// @require      https://raw.githubusercontent.com/xxcanghai/userscript/master/legoHelper/legoHelper.js
 // ==/UserScript==
 
 (function() {

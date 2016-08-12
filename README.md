@@ -1,2 +1,2 @@
-# chrome-extension
-自用，开发的一些chrome插件或是UserScript
+# UserScript
+自用，开发的一些UserScript用户脚本提供一些额外功能
