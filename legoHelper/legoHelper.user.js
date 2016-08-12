@@ -12,15 +12,18 @@
 
 (function () {
     'use strict';
-    var src = "https://raw.githubusercontent.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
-    
-    var script = document.createElement("script");
-    script.onload = onload;
-    script.src = src;
-    var head = document.getElementsByTagName("head")[0];
-    head.appendChild(script);
+    var src = "http://cdn.rawgit.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
 
-    function onload(e) {
-        console.log("legoHelper loaded!");
-    }
+    // var script = document.createElement("script");
+    // script.onload = onload;
+    // script.src = src;
+    // var head = document.getElementsByTagName("body")[0];
+    // head.appendChild(script);
+
+    // function onload(e) {
+    //     // console.log("legoHelper loaded!");
+    // }
+
+    $("body").append($("<script>").attr("src",src));
+
 })();
