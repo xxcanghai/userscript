@@ -1,6 +1,6 @@
 
 'use strict';
-console.info("welcome legoHelper@jicanghai", location.href);
+console.info("welcome legoHelper @xxcanghai#github", location.href);
 
 //乐高-装配中心页面
 (function () {
