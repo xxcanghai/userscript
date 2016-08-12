@@ -12,7 +12,7 @@
 
 (function () {
     'use strict';
-    var src = "http://cdn.rawgit.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
+    var src = "http://rawgit.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
 
     // var script = document.createElement("script");
     // script.onload = onload;
