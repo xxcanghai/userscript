@@ -1,0 +1,14 @@
+{
+  "name": "legohelper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "legoHelper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "lego"
+  ],
+  "author": "jicanghai@meituan.com",
+  "license": "ISC"
+}
