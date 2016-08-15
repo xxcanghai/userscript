@@ -7,12 +7,12 @@
 // @include      http://lego.waimai.sankuai.com/*
 // @exclude      http://lego.waimai.sankuai.com/preview
 // @grant        none
-// @require      https://code.jquery.com/jquery-1.12.4.js
 // ==/UserScript==
 
 (function () {
     'use strict';
-    var src = "http://rawgit.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
+    var legoSrc = "http://rawgit.com/xxcanghai/userscript/master/legoHelper/legoHelper.js";
+    var jquerySrc = "https://code.jquery.com/jquery-1.12.4.js";
 
     // var script = document.createElement("script");
     // script.onload = onload;
@@ -25,7 +25,21 @@
     // }
 
     var t = new Date().getTime();
+    var $jqScript = $("<script>").attr("src", jquerySrc + "?=" + t);
+    var $legoScript = $("<script>").attr("src", legoSrc + "?_=" + t);
 
-    $("body").append($("<script>").attr("src", src + "?_=" + t));
+    if (typeof window["jQuery"] == "undefined") {
+        $jqScript.get(0).onload = function (e) {
+            console.log("jquery loaded");
+            loadLegoHelper();
+        };
+        $("body").append($jqScript);
+    } else {
+        loadLegoHelper();
+    }
+
+    function loadLegoHelper() {
+        $("body").append($legoScript);
+    }
 
 })();
