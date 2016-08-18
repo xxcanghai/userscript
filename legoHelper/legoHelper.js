@@ -57,7 +57,30 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
                 $curr.contextmenu();
                 $(".vakata-context li:eq(2) a").click();
             }
+        })
+            .delegate(".code div a.btn-save-editor", "click", function (e) {
+            $("#saveView").click();
+            setTimeout(function () {
+                $.get("http://localhost:3700/livereload", function (data) {
+                    console.log(data);
+                });
+            }, 300);
+        })
+            .delegate(".ace_text-input", "keydown", function (e) {
+            //Command+S 保存
+            if (e.metaKey && e.which == 83) {
+                save();
+            }
+            //Ctrl+S 保存
+            if (e.ctrlKey && e.which == 83) {
+                save();
+            }
+            function save() {
+                $(".code div a.btn-save-editor").click();
+                e.preventDefault();
+            }
         });
+        ;
     }
     function init() {
         //默认展开组件属性面板
