@@ -3,7 +3,7 @@
 console.info("welcome legoHelper @xxcanghai#github", location.href);
 
 //乐高-装配中心页面
-(function () {
+(() => {
     if (location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/(\?edit=\d+)?$/g) == null) {
         return;
     }
@@ -22,6 +22,9 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
         $curr.click();
     }
 
+    /**
+     * 各类事件绑定
+     */
     function bind() {
         $(document)
             //绑定所有点击“预览”按钮事件
@@ -64,14 +67,16 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
                     $(".vakata-context li:eq(2) a").click();
                 }
             })
+            //页面业务脚本保存后刷新dump页面（需要启动node服务）
             .delegate(".code div a.btn-save-editor", "click", function (e) {
                 $("#saveView").click();
-                setTimeout(function(){
+                setTimeout(function () {
                     $.get("http://localhost:3700/livereload", function (data) {
                         console.log(data);
                     });
-                },300);
+                }, 300);
             })
+            //页面业务脚本快捷键保存功能
             .delegate(".ace_text-input", "keydown", function (e) {
                 //Command+S 保存
                 if (e.metaKey && e.which == 83) {
@@ -87,7 +92,7 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
                     e.preventDefault();
                 }
             });
-            ;
+        ;
 
 
     }
@@ -100,10 +105,10 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
     //-----
     init();
     bind();
-} ());
+})();
 
 //乐高-组件管理页面
-(function () {
+(() => {
     if (location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/components/g) == null) {
         return;
     }
@@ -133,9 +138,64 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
     //----
     init();
     bind();
-} ());
+})();
+
+//乐高-装配中心、组件管理 页面均运行
+(() => {
 
 
+    function createTreeMenu() {
+        var menuStr = `
+            <div class="btn-group btn-group-xs btn-group-justifie" role="group" aria-label="Justified button group">
+                <a href="#" class="btn btn-default" role="button">全部展开</a>
+                <a href="#" class="btn btn-default" role="button">全部折叠</a>
+                <a href="#" class="btn btn-default" role="button" contenteditable="" style="width: 100px;text-align: left;cursor: text;">
+                    搜索组件...
+                </a>
+            </div>
+        `;
+    }
+
+    /**
+     * 展开左侧所有树状菜单
+     * 
+     * @returns
+     */
+    function expandAll() {
+        var $closed = $(".jstree-closed").find(">i.jstree-ocl");
+        if ($closed.length == 0) return;
+        $closed.click();
+        expandAll();
+    }
+
+    /**
+     * 收缩左侧左右树状菜单
+     * 
+     * @returns
+     */
+    function collapseAll() {
+        var $closed = $(".jstree-open").find(">i.jstree-ocl");
+        if ($closed.length == 0) return;
+        $closed.click();
+        collapseAll();
+    }
+
+
+    function init() {
+
+    }
+
+    //-----
+    init();
+})();
+
+
+
+/**
+ * 键盘KeyCode码枚举
+ * 
+ * @enum {number}
+ */
 enum keyCodeEnum {
     backspace = 8,
     tab = 9,

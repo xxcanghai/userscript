@@ -18,6 +18,9 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
         $(".vakata-context li:eq(0) a").click();
         $curr.click();
     }
+    /**
+     * 各类事件绑定
+     */
     function bind() {
         $(document)
             .delegate(".vakata-context li a", "click", function (e) {
@@ -89,7 +92,7 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
     //-----
     init();
     bind();
-}());
+})();
 //乐高-组件管理页面
 (function () {
     if (location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/components/g) == null) {
@@ -117,7 +120,46 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
     //----
     init();
     bind();
-}());
+})();
+//乐高-装配中心、组件管理 页面均运行
+(function () {
+    function createTreeMenu() {
+        var menuStr = "\n            <div class=\"btn-group btn-group-xs btn-group-justifie\" role=\"group\" aria-label=\"Justified button group\">\n                <a href=\"#\" class=\"btn btn-default\" role=\"button\">\u5168\u90E8\u5C55\u5F00</a>\n                <a href=\"#\" class=\"btn btn-default\" role=\"button\">\u5168\u90E8\u6298\u53E0</a>\n                <a href=\"#\" class=\"btn btn-default\" role=\"button\" contenteditable=\"\" style=\"width: 100px;text-align: left;cursor: text;\">\n                    \u641C\u7D22\u7EC4\u4EF6...\n                </a>\n            </div>\n        ";
+    }
+    /**
+     * 展开左侧所有树状菜单
+     *
+     * @returns
+     */
+    function expandAll() {
+        var $closed = $(".jstree-closed").find(">i.jstree-ocl");
+        if ($closed.length == 0)
+            return;
+        $closed.click();
+        expandAll();
+    }
+    /**
+     * 收缩左侧左右树状菜单
+     *
+     * @returns
+     */
+    function collapseAll() {
+        var $closed = $(".jstree-open").find(">i.jstree-ocl");
+        if ($closed.length == 0)
+            return;
+        $closed.click();
+        collapseAll();
+    }
+    function init() {
+    }
+    //-----
+    init();
+})();
+/**
+ * 键盘KeyCode码枚举
+ *
+ * @enum {number}
+ */
 var keyCodeEnum;
 (function (keyCodeEnum) {
     keyCodeEnum[keyCodeEnum["backspace"] = 8] = "backspace";
