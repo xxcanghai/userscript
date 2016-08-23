@@ -1,12 +1,24 @@
 
 'use strict';
 console.info("welcome legoHelper @xxcanghai#github", location.href);
+/**
+ * 是否为装配中心页面
+ */
+var isPageEdit = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/(\?edit=\d+)?($|#)/g) != null;
+/**
+ * 是否为组件管理页面
+ */
+var isPageComponent = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/components/g) != null;
+/**
+ * 是否为预览页面
+ */
+var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/preview($|#)/g) != null;
+
 
 //乐高-装配中心页面
 (() => {
-    if (location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/(\?edit=\d+)?$/g) == null) {
-        return;
-    }
+    if (!isPageEdit) return;
+
     console.log("乐高-装配中心页面");
     var $lastTreeItem = $();
 
@@ -57,7 +69,7 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
                 }
             })
             //选中组件按删除键删除节点
-            .delegate("#jstree", "keydown", function (e) {
+            .delegate("#jstree > ul", "keydown", function (e) {
                 // console.log(e.which);
                 //在组件列表树内部按退格键删除节点
                 if (e.which == keyCodeEnum.delete || e.which == keyCodeEnum.backspace) {
@@ -109,9 +121,8 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
 
 //乐高-组件管理页面
 (() => {
-    if (location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/components/g) == null) {
-        return;
-    }
+    if (!isPageComponent) return;
+
     console.log("乐高-组件管理页面");
 
     function bind() {
@@ -140,41 +151,223 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
     bind();
 })();
 
-//乐高-装配中心、组件管理 页面均运行
+//乐高-装配中心、组件管理 均运行
 (() => {
+    if (!isPageEdit && !isPageComponent) return;
 
+    var $jstree: JQuery = $("#jstree");
+    var lastSearchText: string = "";
+    var lastSearchResultIndex: number = 0;
 
-    function createTreeMenu() {
-        var menuStr = `
-            <div class="btn-group btn-group-xs btn-group-justifie" role="group" aria-label="Justified button group">
-                <a href="#" class="btn btn-default" role="button">全部展开</a>
-                <a href="#" class="btn btn-default" role="button">全部折叠</a>
-                <a href="#" class="btn btn-default" role="button" contenteditable="" style="width: 100px;text-align: left;cursor: text;">
-                    搜索组件...
-                </a>
+    /**
+     * 创建左侧组件树状菜单项的顶部按钮组
+     */
+    function createTreeMenu(): void {
+        var $menu = $(`
+            <div id="jstree-menu" class="btn-group btn-group-xs btn-group-justifie" role="group" aria-label="Justified button group" style="position: fixed; margin-top: -22px; z-index: 99;">
             </div>
-        `;
+        `);
+        $menu
+            .append(
+            $(`<a href="#" id="expandAll" class="btn btn-default" role="button">全部展开</a>`)
+            ).append(
+            $(`<a href="#" id="collapseAll" class="btn btn-default" role="button">全部折叠</a>`)
+            ).append(
+            $(`<a href="#" id="searchComponent" class="btn btn-default" role="button" contenteditable="" style="width: 100px;text-align: left;cursor: text;overflow: hidden;" default="搜索组件..."></a>`).text("搜索组件...")
+            );
+
+        $jstree.css("padding-top", "22px")
+            .delegate("#jstree-menu #expandAll", "click", expandAll)
+            .delegate("#jstree-menu #collapseAll", "click", collapseAll)
+            .delegate("#jstree-menu #searchComponent", "blur focus", searchBarOnBlurFlocus)
+            .delegate("#jstree-menu #searchComponent", "keydown", searchBarOnKeyDown)
+            .delegate("#jstree-menu #searchComponent", "keyup", searchBarOnKeyUp)
+
+        //轮训等待组件列表载入完成后植入工具栏
+        var timerId = setInterval(function () {
+            if ($jstree.find("#jstree-menu").length > 0) {
+                return;
+            }
+            if ($.trim($jstree.html()).length == 0) {
+                return;
+            } else {
+                setTimeout(function () {
+                    $jstree.prepend($menu);
+                }, 100);
+                // clearInterval(timerId);
+            }
+        }, 500);
     }
 
     /**
-     * 展开左侧所有树状菜单
+     * 在搜索栏中按下键盘
+     * 
+     * @param {JQueryKeyEventObject} e
+     * @returns
+     */
+    function searchBarOnKeyDown(e: JQueryKeyEventObject) {
+        // console.log(e);
+        var $text = $(this);
+        var searchText = $text.text();
+        //按回车搜索组件
+        if (e.keyCode == keyCodeEnum.enter) {
+            searchComponent(searchText);
+            e.preventDefault();
+            return;
+        }
+        //按ESC清空输入内容
+        if (e.keyCode == keyCodeEnum.escape) {
+            $text.text("");
+            e.preventDefault();
+            resetSearch();
+            return;
+        }
+    }
+
+    /**
+     * 在搜索栏中抬起键盘
+     * 
+     * @param {JQueryKeyEventObject} e
+     * @returns
+     */
+    function searchBarOnKeyUp(e: JQueryKeyEventObject) {
+        var $text = $(this);
+        var searchText = $text.text();
+        if (e.keyCode == keyCodeEnum.enter || e.keyCode == keyCodeEnum.escape) {
+            e.preventDefault();
+            return;
+        }
+        searchComponent(searchText);
+    }
+
+    /**
+     * 在搜索栏中失去焦点与置入焦点
+     * 
+     * @param {JQueryEventObject} e
+     */
+    function searchBarOnBlurFlocus(e: JQueryEventObject) {
+        // console.log(e);
+        var $text = $(this);
+        var searchText = $.trim($text.text());
+
+        //直接按下组件开头相关的文字会导致触发blur事件
+        // console.log(e.relatedTarget);
+        if (e.relatedTarget != null && $(e.relatedTarget).hasClass("jstree-anchor")) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+
+        if ((e.type == "focus" || e.type == "focusin") && searchText == $text.attr("default")) {
+            // console.log("清空文字");
+            $text.text("");
+        }
+        if ((e.type == "blur" || e.type == "focusout") && $text.text().length == 0) {
+            // console.log(e);
+            $text.text($text.attr("default"));
+
+        }
+    }
+
+
+    /**
+     * 在左侧树状列表中搜索组件
+     * 
+     * @param {string} name 要搜索的组件名称
+     * @returns {boolean} 返回是否成功搜索到组件
+     */
+    function searchComponent(name: string): boolean {
+        // console.log(name);
+        resetSearch();
+        if (name.length == 0) return;
+        name = name.toLowerCase();
+        var $items: JQuery = $jstree.find(">ul .jstree-anchor");
+        var indexArr: number[] = getIndex();
+        var $resultItems: JQuery[] = [];
+        var $resultItem: JQuery = $();
+
+        $.each(indexArr, function (i, resultIndex) {
+            var $item: JQuery = $items.eq(resultIndex);
+            var itemHtml: string = $item.html();
+            var iHtml: string = itemHtml.match(/^<i[^\>]*?>\s*<\/i>/)[0];//匹配节点前的i元素
+            var textHtml: string = itemHtml.replace(iHtml, "");
+            textHtml = textHtml.replace(new RegExp("(" + name + ")", "gi"), "<b class='searchHighlight' style='color:red'>$1</b>");
+            $item.html(iHtml + textHtml);
+            $resultItems.push($item);
+        });
+
+        if (indexArr.length > 0) {
+            $resultItem = $resultItems[lastSearchResultIndex];
+            if ($resultItem == undefined || lastSearchText != name) {
+                lastSearchResultIndex = 0;
+                $resultItem = $resultItems[lastSearchResultIndex];
+            }
+
+            var firstTop: number = $resultItem.get(0).getBoundingClientRect().top;
+            var jstreeTop: number = $jstree.get(0).getBoundingClientRect().top;
+            var jstreeScrollTop: number = $jstree.get(0).scrollTop;
+            var jstreePaddingTop: number = parseInt($jstree.css("padding-top").replace(/[^\d]/g, ""));
+
+            $resultItem.find(".searchHighlight").css("border", "2px solid red");
+            $jstree.scrollTop(firstTop - jstreeTop - jstreePaddingTop + jstreeScrollTop - 40);
+            lastSearchResultIndex++;
+        } else {
+            lastSearchResultIndex = 0;
+        }
+        lastSearchText = name;
+
+
+        return indexArr.length > 0;
+
+
+        /**
+         * 获取指定组件名称在组件列表中的所有index
+         * 
+         * @returns {number}
+         */
+        function getIndex(): number[] {
+            var result: number[] = [];
+            var names: string[] = $.makeArray($items.map((i, o) => $(o).text().toLowerCase()));//.replace(/\([^\)]*?\)/g, "")
+            $.each(names, function (i) {
+                if (names[i].indexOf(name) >= 0) {
+                    result.push(i);
+                }
+            });
+            return result;
+        }
+    }
+
+    /**
+     * 还原搜索痕迹，去除高亮搜索结果
+     */
+    function resetSearch(): void {
+        $jstree.find(".searchHighlight").each(function (i: number, hl: Element) {
+            var $hl: JQuery = $(hl);
+            $hl.get(0).outerHTML = $hl.get(0).innerHTML;
+        });
+    }
+
+    /**
+     * 展开左侧所有树状菜单项
      * 
      * @returns
      */
-    function expandAll() {
-        var $closed = $(".jstree-closed").find(">i.jstree-ocl");
+    function expandAll(): void {
+        var $closed: JQuery = $(".jstree-closed").find(">i.jstree-ocl");
         if ($closed.length == 0) return;
         $closed.click();
-        expandAll();
+        if (isPageEdit) {
+            expandAll();
+        }
     }
 
     /**
-     * 收缩左侧左右树状菜单
+     * 收缩左侧左右树状菜单项
      * 
      * @returns
      */
-    function collapseAll() {
-        var $closed = $(".jstree-open").find(">i.jstree-ocl");
+    function collapseAll(): void {
+        var $closed: JQuery = $(".jstree-open").find(">i.jstree-ocl");
         if ($closed.length == 0) return;
         $closed.click();
         collapseAll();
@@ -182,7 +375,7 @@ console.info("welcome legoHelper @xxcanghai#github", location.href);
 
 
     function init() {
-
+        createTreeMenu();
     }
 
     //-----
