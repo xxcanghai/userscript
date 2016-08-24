@@ -18,6 +18,10 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
         return;
     console.log("乐高-装配中心页面");
     var $lastTreeItem = $();
+    function insertPageStyle() {
+        var css = "\n        .form-group{\n            position: relative;\n        }\n\n        .form-group:hover .form-group-resize {\n            display:block;\n        }\n\n        .form-group .form-group-resize {\n            width: 0;\n            height: 0;\n            position: absolute;\n            border: 10px solid rgba(200,200,200,1);\n            content: \" \";\n            border-left-color: transparent;\n            border-top: none;\n            border-right: none;\n            right: 0;\n            cursor: e-resize;\n            bottom: 0px;\n            display:none;\n        }\n        ";
+        insertStyle(css);
+    }
     /**
      * 预览最后一次预览的内容
      */
@@ -33,6 +37,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
      * 各类事件绑定
      */
     function bind() {
+        var $prop = $("#propsBody");
         $(document)
             .delegate(".vakata-context li a", "click", function (e) {
             if ($(e.target).closest("li").eq(0).index() != 0) {
@@ -93,16 +98,50 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                 $(".code div a.btn-save-editor").click();
                 e.preventDefault();
             }
+        })
+            .delegate(".form-group", "mouseenter", function (e) {
+            // console.log("mouseenter");
+            var $form = $(this);
+            var $resize = $form.find(".form-group-resize");
+            if ($resize.length > 0)
+                return;
+            //添加拖拽调节按钮
+            $resize = $("<div>").addClass("form-group-resize").appendTo($form);
+            //设定当前宽度
+            $form.css("width", $form.width());
+        })
+            .delegate(".form-group .form-group-resize", "mousedown", function (e) {
+            // console.log(e);
+            var $form = $(this).closest(".form-group");
+            $prop.data({ "ismousedown": true, "screenx": e.screenX, "formwidth": $form.width(), "current": $form });
+        })
+            .delegate(".form-group .form-group-resize,#propsBody", "mouseup", function (e) {
+            // console.log(e);
+            $prop.data("ismousedown", false);
+        })
+            .delegate("#propsBody", "mousemove", function (e) {
+            var ismousedown = $prop.data("ismousedown");
+            if (ismousedown != true)
+                return;
+            var screenX = $prop.data("screenx");
+            var formwidth = $prop.data("formwidth");
+            var $form = $prop.data("current");
+            var offsetX = e.screenX - screenX;
+            var dstWidth = formwidth + offsetX;
+            $form.css("width", dstWidth);
+        })
+            .delegate("#propsBody", "mouseleave", function (e) {
+            $prop.data("ismousedown", false);
         });
-        ;
     }
     function init() {
         //默认展开组件属性面板
         $(".panel-collapse-flag").click();
+        insertPageStyle();
+        bind();
     }
     //-----
     init();
-    bind();
 })();
 //乐高-组件管理页面
 (function () {
@@ -138,13 +177,17 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
     var $jstree = $("#jstree");
     var lastSearchText = "";
     var lastSearchResultIndex = 0;
+    function insertPageStyle() {
+        var css = "\n        #jstree-menu{\n            position: fixed; \n            margin-top: -22px; \n            z-index: 99;\n        }\n\n        #expandAll{\n\n        }\n\n        #collapseAll{\n\n        }   \n\n        #searchComponent{\n            width: 100px;\n            text-align: left;\n            cursor: text;\n            overflow: hidden;\n        }     \n\n        .searchHighlight{\n            color:red;\n        }\n        ";
+        insertStyle(css);
+    }
     /**
      * 创建左侧组件树状菜单项的顶部按钮组
      */
     function createTreeMenu() {
-        var $menu = $("\n            <div id=\"jstree-menu\" class=\"btn-group btn-group-xs btn-group-justifie\" role=\"group\" aria-label=\"Justified button group\" style=\"position: fixed; margin-top: -22px; z-index: 99;\">\n            </div>\n        ");
+        var $menu = $("\n            <div id=\"jstree-menu\" class=\"btn-group btn-group-xs btn-group-justifie\" role=\"group\" >\n            </div>\n        ");
         $menu
-            .append($("<a href=\"#\" id=\"expandAll\" class=\"btn btn-default\" role=\"button\">\u5168\u90E8\u5C55\u5F00</a>")).append($("<a href=\"#\" id=\"collapseAll\" class=\"btn btn-default\" role=\"button\">\u5168\u90E8\u6298\u53E0</a>")).append($("<a href=\"#\" id=\"searchComponent\" class=\"btn btn-default\" role=\"button\" contenteditable=\"\" style=\"width: 100px;text-align: left;cursor: text;overflow: hidden;\" default=\"\u641C\u7D22\u7EC4\u4EF6...\"></a>").text("搜索组件..."));
+            .append($("<a href=\"#\" id=\"expandAll\" class=\"btn btn-default\" role=\"button\">\u5168\u90E8\u5C55\u5F00</a>")).append($("<a href=\"#\" id=\"collapseAll\" class=\"btn btn-default\" role=\"button\">\u5168\u90E8\u6298\u53E0</a>")).append($("<a href=\"#\" id=\"searchComponent\" class=\"btn btn-default\" role=\"button\" contenteditable=\"\" default=\"\u641C\u7D22\u7EC4\u4EF6...\"></a>").text("搜索组件..."));
         $jstree.css("padding-top", "22px")
             .delegate("#jstree-menu #expandAll", "click", expandAll)
             .delegate("#jstree-menu #collapseAll", "click", collapseAll)
@@ -241,7 +284,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
         resetSearch();
         if (name.length == 0)
             return;
-        name = name.toLowerCase();
+        name = name.toLowerCase(); //.replace(/(\(|\)|\{|\}|\.|\^|\$|\||\\)/g, "\$1");
         var $items = $jstree.find(">ul .jstree-anchor");
         var indexArr = getIndex();
         var $resultItems = [];
@@ -251,7 +294,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             var itemHtml = $item.html();
             var iHtml = itemHtml.match(/^<i[^\>]*?>\s*<\/i>/)[0]; //匹配节点前的i元素
             var textHtml = itemHtml.replace(iHtml, "");
-            textHtml = textHtml.replace(new RegExp("(" + name + ")", "gi"), "<b class='searchHighlight' style='color:red'>$1</b>");
+            textHtml = textHtml.replace(new RegExp("(" + name + ")", "gi"), "<b class='searchHighlight'>$1</b>");
             $item.html(iHtml + textHtml);
             $resultItems.push($item);
         });
@@ -326,11 +369,22 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
         collapseAll();
     }
     function init() {
+        insertPageStyle();
         createTreeMenu();
     }
     //-----
     init();
 })();
+/**
+ * 在页面中植入样式
+ *
+ * @param {string} str css代码
+ */
+function insertStyle(str) {
+    var $style = $("<style>").html(str);
+    $("head").eq(0).append($style);
+    return $style;
+}
 /**
  * 键盘KeyCode码枚举
  *
