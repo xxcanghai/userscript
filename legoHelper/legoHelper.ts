@@ -146,8 +146,8 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             //鼠标移入[模块属性]框可拖拽修改宽度
             .delegate(".form-group", "mouseenter", function (e: JQueryMouseEventObject) {
                 // console.log("mouseenter");
-                var $form = $(this);
-                var $resize = $form.find(".form-group-resize");
+                var $form: JQuery = $(this);
+                var $resize: JQuery = $form.find(".form-group-resize");
                 if ($resize.length > 0) return;
 
                 //添加拖拽调节按钮
@@ -158,7 +158,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             //鼠标按下拖拽宽度按钮
             .delegate(".form-group .form-group-resize", "mousedown", function (e: JQueryMouseEventObject) {
                 // console.log(e);
-                var $form = $(this).closest(".form-group");
+                var $form: JQuery = $(this).closest(".form-group");
                 $prop.data({ "ismousedown": true, "screenx": e.screenX, "formwidth": $form.width(), "current": $form });
             })
             //鼠标抬起拖拽宽度按钮
@@ -168,18 +168,49 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             })
             //在组件属性框中移动拖拽按钮
             .delegate("#propsBody", "mousemove", function (e: JQueryMouseEventObject) {
-                var ismousedown = $prop.data("ismousedown");
+                var ismousedown: boolean = $prop.data("ismousedown");
                 if (ismousedown != true) return;
-                var screenX = $prop.data("screenx");
-                var formwidth = $prop.data("formwidth");
-                var $form = $prop.data("current");
-                var offsetX = e.screenX - screenX;
-                var dstWidth = formwidth + offsetX;
+                var screenX: number = $prop.data("screenx");
+                var formwidth: number = $prop.data("formwidth");
+                var $form: JQuery = $prop.data("current");
+                var offsetX: number = e.screenX - screenX;
+                var dstWidth: number = formwidth + offsetX;
                 $form.css("width", dstWidth);
             })
             //在组件属性框中离开光标
             .delegate("#propsBody", "mouseleave", function (e: JQueryMouseEventObject) {
                 $prop.data("ismousedown", false);
+            })
+            .delegate(".jstree-contextmenu li a", "click", function (e: JQueryMouseEventObject) {
+                var $a: JQuery = $(this);
+                if ($.trim($a.text()) != "添加") return;
+                setTimeout(addComponent, 100);
+
+                /**
+                 * 延迟弹框弹出后，执行弹窗内组件操作
+                 * 
+                 * @returns
+                 */
+                function addComponent(): void {
+                    var $input: JQuery = $("#msearchInput").focus();
+                    if ($input.data("isbindinput") == true) return;
+                    $input.bind("input", function (e: JQueryEventObject) {
+                        searchModulesComponent($input.val());
+                    });
+                    $input.data("isbindinput", true);
+                }
+
+                /**
+                 * 搜索添加组件弹框中的组件
+                 * 
+                 * @param {string} text
+                 */
+                function searchModulesComponent(text: string): void {
+                    var $labels: JQuery = $("#modules .badge");
+                    var $unMatchLabels: JQuery = $labels.filter((i: number, label: Element) => $(label).text().toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) == -1);
+                    $labels.show();
+                    $unMatchLabels.hide();
+                }
             });
     }
 

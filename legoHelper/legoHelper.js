@@ -132,6 +132,37 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
         })
             .delegate("#propsBody", "mouseleave", function (e) {
             $prop.data("ismousedown", false);
+        })
+            .delegate(".jstree-contextmenu li a", "click", function (e) {
+            var $a = $(this);
+            if ($.trim($a.text()) != "添加")
+                return;
+            setTimeout(addComponent, 100);
+            /**
+             * 延迟弹框弹出后，执行弹窗内组件操作
+             *
+             * @returns
+             */
+            function addComponent() {
+                var $input = $("#msearchInput").focus();
+                if ($input.data("isbindinput") == true)
+                    return;
+                $input.bind("input", function (e) {
+                    searchModulesComponent($input.val());
+                });
+                $input.data("isbindinput", true);
+            }
+            /**
+             * 搜索添加组件弹框中的组件
+             *
+             * @param {string} text
+             */
+            function searchModulesComponent(text) {
+                var $labels = $("#modules .badge");
+                var $unMatchLabels = $labels.filter(function (i, label) { return $(label).text().toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) == -1; });
+                $labels.show();
+                $unMatchLabels.hide();
+            }
         });
     }
     function init() {
