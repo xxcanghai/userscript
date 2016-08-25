@@ -24,6 +24,16 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
 
     function insertPageStyle() {
         var css = `
+        #propsBody{
+            moz-user-select: -moz-none;
+            -moz-user-select: none;
+            -o-user-select:none;
+            -khtml-user-select:none;
+            -webkit-user-select:none;
+            -ms-user-select:none;
+            user-select:none;
+        }
+
         .form-group{
             position: relative;
         }
@@ -36,7 +46,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             width: 0;
             height: 0;
             position: absolute;
-            border: 10px solid rgba(200,200,200,1);
+            border: 12px solid rgba(200,200,200,1);
             content: " ";
             border-left-color: transparent;
             border-top: none;
