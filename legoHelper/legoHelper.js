@@ -19,7 +19,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
     console.log("乐高-装配中心页面");
     var $lastTreeItem = $();
     function insertPageStyle() {
-        var css = "\n        #propsBody{\n            moz-user-select: -moz-none;\n            -moz-user-select: none;\n            -o-user-select:none;\n            -khtml-user-select:none;\n            -webkit-user-select:none;\n            -ms-user-select:none;\n            user-select:none;\n        }\n\n        .form-group{\n            position: relative;\n        }\n\n        .form-group:hover .form-group-resize {\n            display:block;\n        }\n\n        .form-group .form-group-resize {\n            width: 0;\n            height: 0;\n            position: absolute;\n            border: 12px solid rgba(200,200,200,1);\n            content: \" \";\n            border-left-color: transparent;\n            border-top: none;\n            border-right: none;\n            right: 0;\n            cursor: e-resize;\n            bottom: 0px;\n            display:none;\n        }\n        ";
+        var css = "\n        #propsBody,#modules{\n            moz-user-select: -moz-none;\n            -moz-user-select: none;\n            -o-user-select:none;\n            -khtml-user-select:none;\n            -webkit-user-select:none;\n            -ms-user-select:none;\n            user-select:none;\n        }\n\n        .form-group{\n            position: relative;\n        }\n\n        .form-group:hover .form-group-resize {\n            display:block;\n        }\n\n        .form-group .form-group-resize {\n            width: 0;\n            height: 0;\n            position: absolute;\n            border: 12px solid rgba(200,200,200,1);\n            content: \" \";\n            border-left-color: transparent;\n            border-top: none;\n            border-right: none;\n            right: 0;\n            cursor: e-resize;\n            bottom: 0px;\n            display:none;\n        }\n        ";
         insertStyle(css);
     }
     /**
@@ -144,12 +144,20 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
              * @returns
              */
             function addComponent() {
-                var $input = $("#msearchInput").focus();
+                var $input = $("#msearchInput").focus().val("");
                 if ($input.data("isbindinput") == true)
                     return;
                 $input.bind("input", function (e) {
                     searchModulesComponent($input.val());
                 });
+                // $(document).delegate("#msearchInput", "keydown keyup keypress", function (e: JQueryKeyEventObject) {
+                //     if (e.keyCode == keyCodeEnum.enter) {
+                //         e.preventDefault();
+                //         e.stopImmediatePropagation();
+                //         e.stopPropagation();
+                //         return false;
+                //     }
+                // });
                 $input.data("isbindinput", true);
             }
             /**
@@ -162,7 +170,29 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                 var $unMatchLabels = $labels.filter(function (i, label) { return $(label).text().toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) == -1; });
                 $labels.show();
                 $unMatchLabels.hide();
+                checkTitleHide();
             }
+            /**
+             * 将那些过滤完成后没有组件的group，隐藏其标题
+             */
+            function checkTitleHide() {
+                var $titles = $("#modules h4");
+                $titles.each(function (i, title) {
+                    var $title = $(title);
+                    var $compBox = $title.next("div");
+                    if ($compBox.find(".badge:visible").length == 0) {
+                        $title.hide();
+                    }
+                    else {
+                        $title.show();
+                    }
+                });
+            }
+        })
+            .delegate("#modules .badge", "dblclick", function (e) {
+            var $label = $(this);
+            $label.click();
+            $("#modules .modal-footer .btn-primary").click();
         });
     }
     function init() {

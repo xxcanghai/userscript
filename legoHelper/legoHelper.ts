@@ -24,7 +24,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
 
     function insertPageStyle() {
         var css = `
-        #propsBody{
+        #propsBody,#modules{
             moz-user-select: -moz-none;
             -moz-user-select: none;
             -o-user-select:none;
@@ -181,6 +181,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             .delegate("#propsBody", "mouseleave", function (e: JQueryMouseEventObject) {
                 $prop.data("ismousedown", false);
             })
+            //在添加组件弹出框中，实现实时组件搜索，而不用去调用接口搜索
             .delegate(".jstree-contextmenu li a", "click", function (e: JQueryMouseEventObject) {
                 var $a: JQuery = $(this);
                 if ($.trim($a.text()) != "添加") return;
@@ -192,11 +193,19 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                  * @returns
                  */
                 function addComponent(): void {
-                    var $input: JQuery = $("#msearchInput").focus();
+                    var $input: JQuery = $("#msearchInput").focus().val("");
                     if ($input.data("isbindinput") == true) return;
                     $input.bind("input", function (e: JQueryEventObject) {
                         searchModulesComponent($input.val());
                     });
+                    // $(document).delegate("#msearchInput", "keydown keyup keypress", function (e: JQueryKeyEventObject) {
+                    //     if (e.keyCode == keyCodeEnum.enter) {
+                    //         e.preventDefault();
+                    //         e.stopImmediatePropagation();
+                    //         e.stopPropagation();
+                    //         return false;
+                    //     }
+                    // });
                     $input.data("isbindinput", true);
                 }
 
@@ -210,7 +219,30 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                     var $unMatchLabels: JQuery = $labels.filter((i: number, label: Element) => $(label).text().toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) == -1);
                     $labels.show();
                     $unMatchLabels.hide();
+                    checkTitleHide();
                 }
+
+                /**
+                 * 将那些过滤完成后没有组件的group，隐藏其标题
+                 */
+                function checkTitleHide() {
+                    var $titles: JQuery = $("#modules h4");
+                    $titles.each((i: number, title: Element) => {
+                        var $title: JQuery = $(title);
+                        var $compBox: JQuery = $title.next("div");
+                        if ($compBox.find(".badge:visible").length == 0) {
+                            $title.hide();
+                        } else {
+                            $title.show();
+                        }
+                    });
+                }
+            })
+            //在添加组件弹出框中，实现双击组件直接添加，而不用再点击“确认”按钮来添加
+            .delegate("#modules .badge", "dblclick", function (e: JQueryMouseEventObject) {
+                var $label: JQuery = $(this);
+                $label.click();
+                $("#modules .modal-footer .btn-primary").click();
             });
     }
 
