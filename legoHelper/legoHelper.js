@@ -193,6 +193,42 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             var $label = $(this);
             $label.click();
             $("#modules .modal-footer .btn-primary").click();
+        })
+            .delegate("#openView", "click", function (e) {
+            var $a = $(this);
+            setTimeout(addView, 100);
+            /**
+             * 延迟弹框弹出后，执行弹窗内组件操作
+             *
+             * @returns
+             */
+            function addView() {
+                var $input = $("#vsearchInput").focus().val("");
+                if ($input.data("isbindinput") == true)
+                    return;
+                $input.bind("input", function (e) {
+                    searchView($input.val());
+                });
+                $input.data("isbindinput", true);
+            }
+            /**
+             * 搜索打开页面弹框中的页面
+             *
+             * @param {string} text
+             */
+            function searchView(text) {
+                var $labels = $("#views .thumbnail");
+                var $unMatchLabels = $labels.filter(function (i, label) {
+                    return $(label).attr("title").toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) == -1;
+                });
+                $labels.parent("li").show();
+                $unMatchLabels.parent("li").hide();
+            }
+        })
+            .delegate("#views .thumbnail", "dblclick", function (e) {
+            var $label = $(this);
+            $label.click();
+            $("#views .modal-footer .btn-primary").click();
         });
     }
     function init() {

@@ -243,6 +243,44 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                 var $label: JQuery = $(this);
                 $label.click();
                 $("#modules .modal-footer .btn-primary").click();
+            })
+            //在打开页面弹出框中，实现实时页面搜索，而不用去调用接口搜索
+            .delegate("#openView", "click", function (e: JQueryMouseEventObject) {
+                var $a: JQuery = $(this);
+                setTimeout(addView, 100);
+
+                /**
+                 * 延迟弹框弹出后，执行弹窗内组件操作
+                 * 
+                 * @returns
+                 */
+                function addView(): void {
+                    var $input: JQuery = $("#vsearchInput").focus().val("");
+                    if ($input.data("isbindinput") == true) return;
+                    $input.bind("input", function (e: JQueryEventObject) {
+                        searchView($input.val());
+                    });
+                    $input.data("isbindinput", true);
+                }
+
+                /**
+                 * 搜索打开页面弹框中的页面
+                 * 
+                 * @param {string} text
+                 */
+                function searchView(text: string): void {
+                    var $labels: JQuery = $("#views .thumbnail");
+                    var $unMatchLabels: JQuery = $labels.filter((i: number, label: Element) =>
+                        $(label).attr("title").toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) == -1);
+                    $labels.parent("li").show();
+                    $unMatchLabels.parent("li").hide();
+                }
+            })
+            //在打开页面弹出框中，实现双击页面直接打开页面，而不用再点击“确认”按钮来打开
+            .delegate("#views .thumbnail", "dblclick", function (e: JQueryMouseEventObject) {
+                var $label: JQuery = $(this);
+                $label.click();
+                $("#views .modal-footer .btn-primary").click();
             });
     }
 
