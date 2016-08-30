@@ -492,7 +492,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
         if (name.length == 0) return;
         name = name.toLowerCase();//.replace(/(\(|\)|\{|\}|\.|\^|\$|\||\\)/g, "\$1");
 
-        var $items: JQuery = $jstree.find(">ul .jstree-anchor");
+        var $items: JQuery = $jstree.find("ul .jstree-anchor");
         var indexArr: number[] = getIndex();
         var $resultItems: JQuery[] = [];
         var $resultItem: JQuery = $();
