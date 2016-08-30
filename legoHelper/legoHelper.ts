@@ -35,26 +35,28 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
         }
 
         .form-group{
-            position: relative;
+            //position: relative;
         }
 
         .form-group:hover .form-group-resize {
-            display:block;
+            display:inline-block;
         }
 
         .form-group .form-group-resize {
             width: 0;
             height: 0;
-            position: absolute;
+            position: relative;
             border: 12px solid rgba(200,200,200,1);
             content: " ";
             border-left-color: transparent;
             border-top: none;
             border-right: none;
-            right: 0;
+            // right: 0;
             cursor: e-resize;
-            bottom: 0px;
+            // bottom: 0px;
             display:none;
+            transform: translateY(-12px);
+            float: right;
         }
         `;
         insertStyle(css);
