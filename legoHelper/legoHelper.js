@@ -78,6 +78,7 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
             }
         })
             .delegate(".code div a.btn-save-editor", "click", function (e) {
+            // 保存脚本 触发 -> 发布视图 按钮
             $("#saveView").click();
             setTimeout(function () {
                 $.get("http://localhost:3700/livereload", function (data) {
@@ -95,6 +96,8 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                 save();
             }
             function save() {
+                // 装配中心
+                console.log("isPageEdit", isPageEdit);
                 $(".code div a.btn-save-editor").click();
                 e.preventDefault();
             }
@@ -256,9 +259,16 @@ var isPageReview = location.href.match(/http:\/\/lego\.waimai\.sankuai\.com\/pre
                 save();
             }
             function save() {
-                $(".btn-save").click();
+                $("#saveTest").click();
                 e.preventDefault();
             }
+        })
+            .delegate("#saveTest", "click", function (e) {
+            setTimeout(function () {
+                $.get("http://localhost:3700/livereload", function (data) {
+                    console.log(data);
+                });
+            }, 300);
         });
     }
     function init() {
