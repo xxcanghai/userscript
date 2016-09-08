@@ -8,3 +8,6 @@
 2. 在需要刷新的页面 开启livereload,点击图标
 3. npm install
 4. node legoHelper/livereload.js
+
+# 测试环境的livereload
+1. json-server db.json  --port 3000 --static ./legoHelper
