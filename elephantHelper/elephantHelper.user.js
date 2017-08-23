@@ -16,7 +16,7 @@
     var isDev = false;
 
     var jquerySrc = "https://code.jquery.com/jquery-1.12.4.js";
-    var elephantSrc = "https://github.com/xxcanghai/userscript/raw/master/elephantHelper/elephantHelper.js";
+    var elephantSrc = "https://raw.githubusercontent.com/xxcanghai/userscript/master/elephantHelper/elephantHelper.js";
     var t = new Date().getTime();
 
     if (typeof window["jQuery"] == "undefined") {
