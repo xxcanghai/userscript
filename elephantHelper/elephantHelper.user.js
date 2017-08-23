@@ -5,7 +5,6 @@
 // @description  为大象新增各种辅助功能
 // @author       xxcanghai
 // @include      *x.sankuai.com/*
-// @include      *baidu.com*
 // @exclude      
 // @grant        none
 // ==/UserScript==
