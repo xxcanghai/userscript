@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "watch": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
