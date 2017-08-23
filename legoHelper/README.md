@@ -37,3 +37,14 @@ Chrome浏览器或FireFox浏览器，以及所有支持安装用户脚本（User
 2、安装好**Tampermonkey**后，进入新建脚本，将本目录下的[legoHelper.user.js](https://github.com/xxcanghai/userscript/raw/master/legoHelper/legoHelper.user.js)粘贴入，保存，退出。
 
 3、进入乐高项目地址[http://lego.waimai.sankuai.com/](http://lego.waimai.sankuai.com/)，打开控制台，出现有相应的LegoHelper字样的log日志代表安装成功。
+
+
+
+# 安装livereload
+1. chrome 插件 livereload
+2. 在需要刷新的页面 开启livereload,点击图标
+3. npm install
+4. node legoHelper/livereload.js
+
+# 测试环境的livereload
+1. json-server db.json  --port 3000 --static ./legoHelper
