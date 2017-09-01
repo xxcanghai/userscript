@@ -15,7 +15,7 @@
     /** 是否为开发环境。默认线上环境为false */
     var isDev = false;
 
-    var jquerySrc = "https://code.jquery.com/jquery-1.12.4.js";
+    var jquerySrc = "https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js";
     var elephantSrc = "https://xxcanghai.github.io/userscript/elephantHelper/elephantHelper.js";
     var t = new Date().getTime();
 
