@@ -15,9 +15,12 @@
 (function () {
     /** 是否为开发环境。默认线上环境为false */
     var isDev = false;
-
+    // jquery库
     const jquerySrc = "//code.jquery.com/jquery-3.5.0.min.js"
-    const figmaSrc = "//raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.js";
+    // 实际插件代码地址
+    const figmaSrc = "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.js";
+    // 安装脚本地址
+    const figmaUserScript= "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.user.js";
     const t = new Date().getTime();
 
     if (typeof window["jQuery"] == "undefined") {
@@ -30,17 +33,6 @@
 
     function log(...args) {
         console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
-    }
-    function appendScript(src, onload) {
-        if (typeof src != "string" || src.length == 0) return null;
-        if (typeof onload != "function") {
-            onload = function () { };
-        }
-        var script = document.createElement("script");
-        script.onload = onload;
-        script.src = src + "?_=" + t;
-        document.getElementsByTagName("body")[0].appendChild(script);
-        return script;
     }
     function loadScript(src, onload) {
         fetch(src).then(resp => resp.text()).then(code => {
