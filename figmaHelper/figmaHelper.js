@@ -2,8 +2,205 @@ window.figmaHelper = function () {
     if (window.figmaHelper.isInit === true)
         return;
     window.figmaHelper.isInit = true;
-    console.info("welcome figmaHelper @github.com/xxcanghai", location.href);
-
+    log("welcome figmaHelper @github.com/xxcanghai", decodeURIComponent(location.href));
+    var prompt = window.figmaHepler_prompt;
+    var storageKey = 'figmaHelper_convertFormat';
+    function log() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
+    }
+    (function () {
+        insertStyle("\n        /* \u589E\u52A0\u8F6C\u6362\u5355\u4F4D\u6837\u5F0F */\n        .figmaHelper_newUnit {\n            color: #1664FF;\n        }\n        .figmaHelper_newUnit:hover {\n            background-color: #1664FF;\n            color: white;\n        }\n        .figmaHelper_newUnit:active {\n            background-color: #1664ff94;\n            color: white;\n        }\n\n        /* \u690D\u5165\u7684\u590D\u5236\u6309\u94AE */\n        .figmaHelper_newCopyBtn{\n        }\n        .figmaHelper_newCopyBtn span{\n            fill: #1664FF;\n        }\n\n        /* \u690D\u5165\u914D\u7F6E\u5355\u4F4D\u8F6C\u6362\u516C\u5F0F */\n        .figmaHelper_configUnit{\n            margin: 18px;\n            color: #1664FF;\n        }\n        .figmaHelper_configUnit:hover{\n            color: red;\n            cursor: pointer;\n        }\n    ");
+    }());
+    // 增加：点击元素在右侧属性面板处将px重写为rpx单位
+    function unitConvert() {
+        var observer = new MutationObserver(domChange);
+        var stylePanel = $("[class*=code_inspection_panels--codePanelContainer]").get(0);
+        var options = {
+            'childList': true,
+            'arrtibutes': true,
+            'subtree': true,
+            'characterData': true
+        };
+        observer.observe(stylePanel, options);
+        //初始化执行一次
+        domChange();
+        addCopyBtn();
+        addConfigUnitDom();
+        function domChange(element, option) {
+            // log('domChange',element,option);
+            // 解除监听
+            observer.disconnect();
+            var $panelList = $('[class*=raw_components--panel][class*=inspect_panels--inspectionPanel]');
+            $panelList.find('.inspect_panels--_propertyValue--MMDhq').each(function (index, span) {
+                var clsPrefix = 'figmaHelper_newUnit';
+                var $span = $(span);
+                var text = $span.text().replace(/->.*$/g, '');
+                if ($span.hasClass(clsPrefix))
+                    return;
+                if (!text.endsWith('px'))
+                    return;
+                var num = parseFloat(text); // -10.3px -> -10.3
+                num = evalFormat(num); // 根据转换公式计算转换后的数值
+                num = Number(num.toFixed(2)); //解决无限小数问题+移除末尾0
+                var distStr = "".concat(num, "rpx");
+                // $span.text(text + '->' + distStr);
+                var $newSpan;
+                if ($span.next(".".concat(clsPrefix)).length == 0) {
+                    $newSpan = $span.clone().addClass(clsPrefix);
+                    $newSpan.click(onNewUnitClick);
+                    $span.after($newSpan);
+                }
+                else {
+                    $newSpan = $span.next(".".concat(clsPrefix));
+                }
+                $newSpan.text(distStr);
+                log(text, distStr);
+            });
+            // 植入新复制代码按钮
+            addCopyBtn();
+            function onNewUnitClick(e) {
+                e.stopPropagation();
+                var $unit = $(this);
+                var copyText = $unit.text();
+                copyToBoard(copyText);
+                log('已复制到剪贴板:', copyText);
+            }
+            // 恢复监听
+            observer.observe(stylePanel, options);
+        }
+    }
+    /** 根据转换公式计算转换后的数值 */
+    function evalFormat(num) {
+        var format = getUnitFormat();
+        var code = format.replace(/\{n\}/g, String(num));
+        var result = 0;
+        try {
+            result = eval(code);
+        }
+        catch (ex) {
+            // localstorage中的字符串非法
+            result = num;
+        }
+        return result;
+    }
+    function addCopyBtn() {
+        var cssMap = {
+            'Width': 'width',
+            'Height': 'height',
+            'Top': 'top',
+            'Left': 'left',
+            'Radius': 'border-radius',
+            'Opacity': 'opacity'
+        };
+        var clsPrefix = 'figmaHelper_newCopyBtn';
+        var $copyBtnList = $('[class*=inspect_panels--copyButton]');
+        if ($copyBtnList.length == 0) {
+            return;
+        }
+        ;
+        $copyBtnList = $copyBtnList;
+        $copyBtnList.each(function (index, btn) {
+            var $btn = $(btn);
+            if ($btn.hasClass(clsPrefix)) {
+                return;
+            }
+            ;
+            var $newBtn = $btn.clone().addClass(clsPrefix);
+            if ($btn.next(".".concat(clsPrefix)).length == 0) {
+                $btn.after($newBtn);
+                $newBtn.click(onNewCopyBtnClick);
+            }
+        });
+        function onNewCopyBtnClick(e) {
+            e.stopPropagation();
+            var $btn = $(this);
+            var $box = $btn.parents('[class*=raw_components--panel]');
+            var result = '';
+            $box.find('[class*=inspect_panels--highlightRow]').each(function (index, line) {
+                var $line = $(line);
+                var key = $line.find('[class*=inspect_panels--propertyName]').text();
+                var orgValue = $line.find('[class*=inspect_panels--propertyValue]').text();
+                var value = $line.find('[class*=figmaHelper_newUnit]').text();
+                key = cssMap[key] || key.toLowerCase();
+                result += "".concat(key, ": ").concat(value || orgValue, ";\n");
+            });
+            log('已复制到剪贴板:', result);
+            copyToBoard(result);
+        }
+    }
+    function addConfigUnitDom() {
+        var clsPrefix = 'figmaHelper_configUnit';
+        var $link = $('<div>')
+            .addClass(clsPrefix)
+            .text('>配置css单位转换公式')
+            .click(onConfigUnitClick);
+        $('[class*=code_inspection_panels--codePanelContainer]').after($link);
+        function onConfigUnitClick(e) {
+            e.stopPropagation();
+            var format = getUnitFormat();
+            var newFormat = prompt('请输入单位转换公式：\n{n}为具体数值变量', format);
+            setUnitFormat(newFormat);
+        }
+    }
+    function getUnitFormat() {
+        var format = localStorage.getItem(storageKey);
+        if (typeof format !== 'string' || format.length == 0) {
+            var defaultFormat = '{n}/10';
+            setUnitFormat(defaultFormat);
+            return defaultFormat;
+        }
+        else {
+            return format;
+        }
+    }
+    function setUnitFormat(format) {
+        if (typeof format !== 'string' || format.length == 0)
+            return;
+        localStorage.setItem(storageKey, format);
+    }
+    var checkReadyTimer = 0;
+    function checkReady() {
+        // log('check')
+        if ($("[class*=code_inspection_panels--codePanelContainer]").length > 0) {
+            clearInterval(checkReadyTimer);
+            // log('ready!')
+            unitConvert();
+        }
+    }
+    checkReadyTimer = setInterval(checkReady, 1000);
+    /**
+     * 在页面中植入样式
+     *
+     * @param {string} str css代码
+     */
+    function insertStyle(str) {
+        var $style = $("<style>").html(str);
+        $("head").eq(0).append($style);
+        return $style;
+    }
+    function copyToBoard(text) {
+        // try {
+        //     const input = document.createElement('textarea')
+        //     input.value = text
+        //     document.body.appendChild(input)
+        //     input.focus()
+        //     input.select()
+        //     document.execCommand('copy')
+        //     document.body.removeChild(input)
+        // } catch (err) {
+        //     // ignore
+        // }
+        try {
+            navigator.clipboard.writeText(text);
+        }
+        catch (ex) {
+            console.error('复制失败', ex);
+        }
+    }
 };
 if ("jQuery" in window && typeof window.figmaHelper == "function") {
     window["figmaHelper"]();

@@ -8,30 +8,33 @@
 // @exclude
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=figma.com
 // @grant        none
-// @require      file:///Users/bytedance/WebSite/xxcanghai/userscript/figmaHelper/figmaHelper.js
 // ==/UserScript==
 
-
-// @require     /Users/bytedance/WebSite/xxcanghai/userscript/figmaHelper/figmaHelper.js
+// 上线时：@require 删除
+// 本地开发时：@require     /Users/bytedance/WebSite/xxcanghai/userscript/figmaHelper/figmaHelper.js
 (function () {
     /** 是否为开发环境。默认线上环境为false */
-    var isDev = true;
+    var isDev = false;
 
     const jquerySrc = "//code.jquery.com/jquery-3.5.0.min.js"
-    // var jquerySrc = "https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js";
-    const figmaSrc = "https://xxcanghai.github.io/userscript/figmaHelper/figmaHelper.js";
+    const figmaSrc = "//raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.js";
     const t = new Date().getTime();
 
     if (typeof window["jQuery"] == "undefined") {
-        loadScript(jquerySrc, loadElephantEmoji);
+        loadScript(jquerySrc, loadFigma);
     } else {
-        loadElephantEmoji();
+        loadFigma();
     }
+    //解决figma屏蔽了prompt函数的问题
+    window['figmaHepler_prompt']= prompt;
 
+    function log(...args) {
+        console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
+    }
     function appendScript(src, onload) {
         if (typeof src != "string" || src.length == 0) return null;
         if (typeof onload != "function") {
-            onload = function () {};
+            onload = function () { };
         }
         var script = document.createElement("script");
         script.onload = onload;
@@ -40,18 +43,17 @@
         return script;
     }
     function loadScript(src, onload) {
-        fetch(jquerySrc).then(resp=>resp.text()).then(src=>{
-            eval(src);
-            onload();
+        fetch(src).then(resp => resp.text()).then(code => {
+            var exportResut = eval(code);
+            onload(exportResut);
         });
     }
-
-    function loadElephantEmoji() {
-        console.info("jquery 载入成功!", $, jQuery);
+    function loadFigma() {
+        log("jquery 载入成功!", $, jQuery);
         var $ = window.jQuery;
         if (isDev == false) {
             appendScript(figmaSrc, function (e) {
-                console.log("大象助手脚本载入成功");
+                log("figma助手脚本载入成功");
             })
         } else {
             if (typeof window.figmaHelper == "function") {
