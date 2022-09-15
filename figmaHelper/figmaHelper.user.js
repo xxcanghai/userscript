@@ -52,7 +52,7 @@
         log("jquery 载入成功!", $, jQuery);
         var $ = window.jQuery;
         if (isDev == false) {
-            appendScript(figmaSrc, function (e) {
+            loadScript(figmaSrc, function (e) {
                 log("figma助手脚本载入成功");
             })
         } else {
