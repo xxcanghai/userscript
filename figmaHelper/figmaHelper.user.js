@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 // 上线时：@require 删除
-// 本地开发时：@require     /Users/bytedance/WebSite/xxcanghai/userscript/figmaHelper/figmaHelper.js
+// 本地开发时：@require     file:///Users/bytedance/WebSite/xxcanghai/userscript/figmaHelper/figmaHelper.js
 (function () {
     /** 是否为开发环境。默认线上环境为false */
     var isDev = false;
