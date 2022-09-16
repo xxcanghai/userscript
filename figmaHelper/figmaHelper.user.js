@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         figma前端助手
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  为figma增加一系列的在前端开发领域的功能。1.0版本为增加px转换为rpx显示
 // @author       xxcanghai
 // @match        https://www.figma.com/file/*
@@ -33,7 +33,7 @@
     }
     function loadScript(src, onload) {
         var t = new Date().getTime();
-        src + "?_=" + t;
+        src += "?_=" + t;
         fetch(src).then(resp => resp.text()).then(code => {
             var exportResut = eval(code);
             onload(exportResut);
