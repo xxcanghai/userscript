@@ -3,7 +3,7 @@ window.figmaHelper = function () {
         return;
     window.figmaHelper.isInit = true;
     log("welcome figmaHelper @github.com/xxcanghai", decodeURIComponent(location.href));
-    var prompt = window.figmaHepler_prompt;
+    var prompt = createPrompt();
     var storageKey = 'figmaHelper_convertFormat';
     function log() {
         var args = [];
@@ -13,7 +13,7 @@ window.figmaHelper = function () {
         console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
     }
     (function () {
-        insertStyle("\n        /* \u589E\u52A0\u8F6C\u6362\u5355\u4F4D\u6837\u5F0F */\n        .figmaHelper_newUnit {\n            color: #1664FF;\n        }\n        .figmaHelper_newUnit:hover {\n            background-color: #1664FF;\n            color: white;\n        }\n        .figmaHelper_newUnit:active {\n            background-color: #1664ff94;\n            color: white;\n        }\n\n        /* \u690D\u5165\u7684\u590D\u5236\u6309\u94AE */\n        .figmaHelper_newCopyBtn{\n        }\n        .figmaHelper_newCopyBtn span{\n            fill: #1664FF;\n        }\n\n        /* \u690D\u5165\u914D\u7F6E\u5355\u4F4D\u8F6C\u6362\u516C\u5F0F */\n        .figmaHelper_configUnit{\n            margin: 18px;\n            color: #1664FF;\n        }\n        .figmaHelper_configUnit:hover{\n            color: red;\n            cursor: pointer;\n        }\n    ");
+        insertStyle("\n        /* \u589E\u52A0\u8F6C\u6362\u5355\u4F4D\u6837\u5F0F */\n        .figmaHelper_newUnit {\n            color: #1664FF;\n        }\n        .figmaHelper_newUnit:hover {\n            background-color: #1664FF;\n            color: white;\n        }\n        .figmaHelper_newUnit:active {\n            background-color: #1664ff94;\n            color: white;\n        }\n\n        /* \u690D\u5165\u7684\u590D\u5236\u6309\u94AE */\n        .figmaHelper_newCopyBtn{\n        }\n        .figmaHelper_newCopyBtn span{\n            fill: #1664FF;\n        }\n\n        /* \u690D\u5165\u914D\u7F6E\u5355\u4F4D\u8F6C\u6362\u516C\u5F0F */\n        .figmaHelper_configUnit{\n            margin: 18px;\n            width: 417rpx;\n            display: inline-block;\n            height: 20px;\n            background-color: #0d99ff;\n            color: white;\n            padding: 3px 10px;\n            line-height: 20px;\n            border-radius: 5px;\n        }\n        .figmaHelper_configUnit:hover{\n            opacity: 0.9;\n            cursor: pointer;\n        }\n        .figmaHelper_configUnit:active{\n            opacity: 0.8;\n        }\n    ");
     }());
     // 增加：点击元素在右侧属性面板处将px重写为rpx单位
     function unitConvert() {
@@ -123,12 +123,12 @@ window.figmaHelper = function () {
             $box.find('[class*=inspect_panels--highlightRow]').each(function (index, line) {
                 var $line = $(line);
                 var key = $line.find('[class*=inspect_panels--propertyName]').text();
-                var orgValue = $line.find('[class*=inspect_panels--propertyValue]').text();
-                var value = $line.find('[class*=figmaHelper_newUnit]').text();
+                var oldValue = $line.find('[class*=inspect_panels--propertyValue]').text();
+                var newvalue = $line.find('[class*=figmaHelper_newUnit]').text();
                 key = cssMap[key] || key.toLowerCase();
-                result += "".concat(key, ": ").concat(value || orgValue, ";\n");
+                result += "".concat(key, ": ").concat(newvalue || oldValue, ";\n");
             });
-            log('已复制到剪贴板:', result);
+            log('已复制到剪贴板:\n', result);
             copyToBoard(result);
         }
     }
@@ -199,6 +199,20 @@ window.figmaHelper = function () {
         }
         catch (ex) {
             console.error('复制失败', ex);
+        }
+    }
+    /** 解决figma改写了原生prompt函数的问题 */
+    function createPrompt() {
+        try {
+            var clsPrefix = 'figmaHelper_promptIframe';
+            var $iframe = $('<iframe>').addClass(clsPrefix).css({ display: 'none', position: 'absolute', width: 0, height: 0 });
+            $('body').append($iframe);
+            return $iframe.get(0).contentWindow.prompt;
+        }
+        catch (ex) {
+            return function () {
+                alert('功能异常，请联系开发者');
+            };
         }
     }
 };

@@ -28,8 +28,6 @@
     } else {
         loadFigma();
     }
-    //解决figma屏蔽了prompt函数的问题
-    window['figmaHepler_prompt']= prompt;
 
     function log(...args) {
         console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));

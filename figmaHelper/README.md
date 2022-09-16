@@ -6,7 +6,7 @@
 2. 支持自定义转换公式
 
 示例：
-![](https://p26-piu.byteimg.com/tos-cn-i-8jisjyls3a/d1cbfd32d9614bdbace6327fc34471a5~tplv-8jisjyls3a-2:0:0:q75.image)
+![](https://i.imgur.com/llQPlRQ.png)
 
 # 开发中的功能
 - [ ] 自定义单位字符串，当前写死为`rpx`单位。

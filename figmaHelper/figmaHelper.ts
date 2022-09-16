@@ -2,7 +2,7 @@ window.figmaHelper = function () {
     if (window.figmaHelper.isInit === true) return;
     window.figmaHelper.isInit = true;
     log("welcome figmaHelper @github.com/xxcanghai", decodeURIComponent(location.href));
-    const prompt = window.figmaHepler_prompt;
+    const prompt = createPrompt();
     const storageKey = 'figmaHelper_convertFormat';
 
     function log(...args) {
@@ -34,11 +34,21 @@ window.figmaHelper = function () {
         /* 植入配置单位转换公式 */
         .figmaHelper_configUnit{
             margin: 18px;
-            color: #1664FF;
+            width: 417rpx;
+            display: inline-block;
+            height: 20px;
+            background-color: #0d99ff;
+            color: white;
+            padding: 3px 10px;
+            line-height: 20px;
+            border-radius: 5px;
         }
         .figmaHelper_configUnit:hover{
-            color: red;
+            opacity: 0.9;
             cursor: pointer;
+        }
+        .figmaHelper_configUnit:active{
+            opacity: 0.8;
         }
     `);
     }());
@@ -126,7 +136,7 @@ window.figmaHelper = function () {
             'Left': 'left',
             'Radius': 'border-radius',
             'Opacity': 'opacity',
-        }
+        } as const;
         var clsPrefix = 'figmaHelper_newCopyBtn';
         var $copyBtnList = $('[class*=inspect_panels--copyButton]');
         if ($copyBtnList.length == 0) {
@@ -153,12 +163,12 @@ window.figmaHelper = function () {
             $box.find('[class*=inspect_panels--highlightRow]').each((index, line) => {
                 var $line = $(line);
                 var key = $line.find('[class*=inspect_panels--propertyName]').text();
-                var orgValue = $line.find('[class*=inspect_panels--propertyValue]').text();
-                var value = $line.find('[class*=figmaHelper_newUnit]').text();
+                var oldValue = $line.find('[class*=inspect_panels--propertyValue]').text();
+                var newvalue = $line.find('[class*=figmaHelper_newUnit]').text();
                 key = cssMap[key] || key.toLowerCase();
-                result += `${key}: ${value || orgValue};\n`;
+                result += `${key}: ${newvalue || oldValue};\n`;
             });
-            log('已复制到剪贴板:', result);
+            log('已复制到剪贴板:\n', result);
             copyToBoard(result);
         }
     }
@@ -237,6 +247,20 @@ window.figmaHelper = function () {
             console.error('复制失败', ex);
         }
     }
+
+    /** 解决figma改写了原生prompt函数的问题 */
+    function createPrompt(): typeof window['prompt'] {
+        try {
+            const clsPrefix = 'figmaHelper_promptIframe';
+            var $iframe = $('<iframe>').addClass(clsPrefix).css({ display: 'none', position: 'absolute', width: 0, height: 0 });
+            $('body').append($iframe);
+            return ($iframe.get(0) as HTMLIFrameElement).contentWindow.prompt;
+        } catch (ex) {
+            return function () {
+                alert('功能异常，请联系开发者');
+            } as any;
+        }
+    }
 }
 
 if ("jQuery" in window && typeof window.figmaHelper == "function") {
@@ -248,7 +272,6 @@ if ("jQuery" in window && typeof window.figmaHelper == "function") {
 
 interface Window {
     figmaHelper: figmaHelper;
-    figmaHepler_prompt: typeof prompt;
 }
 interface figmaHelper {
     (): void;
