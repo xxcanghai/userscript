@@ -21,7 +21,6 @@
     const figmaSrc = "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.js";
     // 安装脚本地址
     const figmaUserScript = "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.user.js";
-    const t = new Date().getTime();
 
     if (typeof window["jQuery"] == "undefined") {
         loadScript(jquerySrc, loadFigma);
@@ -33,6 +32,8 @@
         console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
     }
     function loadScript(src, onload) {
+        var t = new Date().getTime();
+        src + "?_=" + t;
         fetch(src).then(resp => resp.text()).then(code => {
             var exportResut = eval(code);
             onload(exportResut);
