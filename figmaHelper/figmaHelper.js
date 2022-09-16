@@ -13,7 +13,7 @@ window.figmaHelper = function () {
         console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
     }
     (function () {
-        insertStyle("\n        /* \u589E\u52A0\u8F6C\u6362\u5355\u4F4D\u6837\u5F0F */\n        .figmaHelper_newUnit {\n            color: #1664FF;\n        }\n        .figmaHelper_newUnit:hover {\n            background-color: #1664FF;\n            color: white;\n        }\n        .figmaHelper_newUnit:active {\n            background-color: #1664ff94;\n            color: white;\n        }\n\n        /* \u690D\u5165\u7684\u590D\u5236\u6309\u94AE */\n        .figmaHelper_newCopyBtn{\n        }\n        .figmaHelper_newCopyBtn span{\n            fill: #1664FF;\n        }\n\n        /* \u690D\u5165\u914D\u7F6E\u5355\u4F4D\u8F6C\u6362\u516C\u5F0F */\n        .figmaHelper_configUnit{\n            margin: 18px;\n            width: 417rpx;\n            display: inline-block;\n            height: 20px;\n            background-color: #0d99ff;\n            color: white;\n            padding: 3px 10px;\n            line-height: 20px;\n            border-radius: 5px;\n        }\n        .figmaHelper_configUnit:hover{\n            opacity: 0.9;\n            cursor: pointer;\n        }\n        .figmaHelper_configUnit:active{\n            opacity: 0.8;\n        }\n    ");
+        insertStyle("\n        /* \u589E\u52A0\u8F6C\u6362\u5355\u4F4D\u6837\u5F0F */\n        .figmaHelper_newUnit {\n            color: #1664FF;\n        }\n        .figmaHelper_newUnit:hover {\n            background-color: #1664FF;\n            color: white;\n        }\n        .figmaHelper_newUnit:active {\n            background-color: #1664ff94;\n            color: white;\n        }\n\n        /* \u690D\u5165\u7684\u590D\u5236\u6309\u94AE */\n        .figmaHelper_newCopyBtn{\n        }\n        .figmaHelper_newCopyBtn span{\n            fill: #1664FF;\n        }\n\n        /* \u690D\u5165\u914D\u7F6E\u5355\u4F4D\u8F6C\u6362\u516C\u5F0F */\n        .figmaHelper_configUnit{\n            margin: 18px;\n            width: 417rpx;\n            display: inline-block;\n            height: 20px;\n            background-color: #0d99ff;\n            color: white;\n            padding: 3px 10px;\n            line-height: 20px;\n            border-radius: 5px;\n        }\n        .figmaHelper_configUnit:hover{\n            opacity: 0.9;\n            cursor: pointer;\n        }\n        .figmaHelper_configUnit:active{\n            opacity: 0.8;\n        }\n\n        /* \u65B0\u589E\u690D\u5165css\u4EE3\u7801\u9762\u677F */\n        .figmaHelper_cssCodeContent{\n            background-color: rgba(0,0,0,0.02);\n            border-top: 1px solid #ddd;\n            padding-top: 10px;\n        }\n    ");
     }());
     // 增加：点击元素在右侧属性面板处将px重写为rpx单位
     function unitConvert() {
@@ -30,6 +30,7 @@ window.figmaHelper = function () {
         domChange();
         addCopyBtn();
         addConfigUnitDom();
+        addCssCodePanel();
         function domChange(element, option) {
             // log('domChange',element,option);
             // 解除监听
@@ -38,16 +39,12 @@ window.figmaHelper = function () {
             $panelList.find('.inspect_panels--_propertyValue--MMDhq').each(function (index, span) {
                 var clsPrefix = 'figmaHelper_newUnit';
                 var $span = $(span);
-                var text = $span.text().replace(/->.*$/g, '');
+                var unitText = $span.text();
                 if ($span.hasClass(clsPrefix))
                     return;
-                if (!text.endsWith('px'))
+                var newUnitText = unitTextConvert(unitText);
+                if (newUnitText.length == 0)
                     return;
-                var num = parseFloat(text); // -10.3px -> -10.3
-                num = evalFormat(num); // 根据转换公式计算转换后的数值
-                num = Number(num.toFixed(2)); //解决无限小数问题+移除末尾0
-                var distStr = "".concat(num, "rpx");
-                // $span.text(text + '->' + distStr);
                 var $newSpan;
                 if ($span.next(".".concat(clsPrefix)).length == 0) {
                     $newSpan = $span.clone().addClass(clsPrefix);
@@ -57,11 +54,13 @@ window.figmaHelper = function () {
                 else {
                     $newSpan = $span.next(".".concat(clsPrefix));
                 }
-                $newSpan.text(distStr);
-                log(text, distStr);
+                $newSpan.text(newUnitText);
+                log(unitText, newUnitText);
             });
             // 植入新复制代码按钮
             addCopyBtn();
+            // 植入转换单位后的css代码面板
+            addCssCodePanel();
             function onNewUnitClick(e) {
                 e.stopPropagation();
                 var $unit = $(this);
@@ -72,6 +71,17 @@ window.figmaHelper = function () {
             // 恢复监听
             observer.observe(stylePanel, options);
         }
+    }
+    /** 将字符串单位转换为新字符串单位 */
+    // "-10.3px" -> "-1.03rpx" 只接受以px为结尾的字符串
+    function unitTextConvert(text) {
+        if (!text.endsWith('px'))
+            return '';
+        var num = parseFloat(text); // -10.3px -> -10.3
+        num = evalFormat(num); // 根据转换公式计算转换后的数值
+        num = Number(num.toFixed(2)); //解决无限小数问题+移除末尾0
+        var result = "".concat(num, "rpx");
+        return result;
     }
     /** 根据转换公式计算转换后的数值 */
     function evalFormat(num) {
@@ -84,9 +94,11 @@ window.figmaHelper = function () {
         catch (ex) {
             // localstorage中的字符串非法
             result = num;
+            log('转换公式不合法，请检查公式！', '当前公式：', code);
         }
         return result;
     }
+    /** 插入新的复制属性按钮 */
     function addCopyBtn() {
         var cssMap = {
             'Width': 'width',
@@ -102,7 +114,6 @@ window.figmaHelper = function () {
             return;
         }
         ;
-        $copyBtnList = $copyBtnList;
         $copyBtnList.each(function (index, btn) {
             var $btn = $(btn);
             if ($btn.hasClass(clsPrefix)) {
@@ -132,6 +143,7 @@ window.figmaHelper = function () {
             copyToBoard(result);
         }
     }
+    /** 插入「配置转换公式」按钮 */
     function addConfigUnitDom() {
         var clsPrefix = 'figmaHelper_configUnit';
         var $link = $('<div>')
@@ -145,6 +157,25 @@ window.figmaHelper = function () {
             var newFormat = prompt('请输入单位转换公式：\n{n}为具体数值变量', format);
             setUnitFormat(newFormat);
         }
+    }
+    /** 插入新css代码面板 */
+    function addCssCodePanel() {
+        var clsPrefix = 'figmaHelper_cssCodeContent';
+        //移除上一次添加的css面板
+        $(".".concat(clsPrefix)).remove();
+        var $cssPanel = $("[class*=css_code_panel--cssCodeContent]");
+        var $newCssPanel = $cssPanel.eq(0).clone().addClass(clsPrefix);
+        $cssPanel.after($newCssPanel);
+        $newCssPanel.find('*').each(function (index, ele) {
+            var $ele = $(ele);
+            if ($ele.children().length > 0)
+                return;
+            var text = $ele.text().replace(/-?\d+(?:\.\d+)?px/g, function (match, index, all) {
+                // match为提取出来的px字符串，如 "50%-60px/2" 当中的 "60px"
+                return unitTextConvert(match);
+            });
+            $ele.text(text);
+        });
     }
     function getUnitFormat() {
         var format = localStorage.getItem(storageKey);
@@ -172,6 +203,7 @@ window.figmaHelper = function () {
         }
     }
     checkReadyTimer = setInterval(checkReady, 1000);
+    //========Tools============
     /**
      * 在页面中植入样式
      *

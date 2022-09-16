@@ -20,7 +20,7 @@
     // 实际插件代码地址
     const figmaSrc = "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.js";
     // 安装脚本地址
-    const figmaUserScript= "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.user.js";
+    const figmaUserScript = "https://raw.githubusercontent.com/xxcanghai/userscript/master/figmaHelper/figmaHelper.user.js";
     const t = new Date().getTime();
 
     if (typeof window["jQuery"] == "undefined") {
@@ -46,6 +46,7 @@
                 log("figma助手脚本载入成功");
             })
         } else {
+            log('当前为开发模式，从本地加载脚本！');
             if (typeof window.figmaHelper == "function") {
                 window.figmaHelper();
             }
