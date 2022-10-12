@@ -29,7 +29,7 @@
     }
 
     function log(...args) {
-        console.log.apply(console, ['%c[FigmaHepler]', 'color: #0000ff;font-weight:bold;'].concat(args));
+        console.log.apply(console, ['%c[figmaHelper]', 'color: #0000ff;font-weight:bold;'].concat(args));
     }
     function loadScript(src, onload) {
         var t = new Date().getTime();
