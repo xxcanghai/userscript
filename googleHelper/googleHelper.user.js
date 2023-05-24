@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         google前端助手
 // @namespace    http://tampermonkey.net/
-// @version      0.3
-// @description  为google增加一系列的在前端开发领域的功能。1.0版本为增加px转换为rpx显示
+// @version      0.1
+// @description  为google增加辅助功能。0.1版本支持在谷歌搜索栏，增加切换到“搜索中国地区”的按钮
 // @author       xxcanghai
 // @match        https://www.google.com/*
 // @exclude
