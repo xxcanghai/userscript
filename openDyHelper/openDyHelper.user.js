@@ -9,14 +9,13 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=developer.open-douyin.com
 // @grant        none
 // @run-at       document-start
-// @require     file:///Users/bytedance/WebSite/xxcanghai/userscript/openDyHelper/openDyHelper.js
 // ==/UserScript==
 
 // 上线时：@require 删除
 // 本地开发时：// @require     file:///Users/bytedance/WebSite/xxcanghai/userscript/openDyHelper/openDyHelper.js
 (function () {
     /** 是否为开发环境。默认线上环境为false */
-    var isDev = true;
+    var isDev = false;
     // jquery库
     const jquerySrc = "//code.jquery.com/jquery-3.5.0.min.js"
     // 实际插件代码地址
