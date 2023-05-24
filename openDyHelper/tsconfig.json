@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "lib": [
+            "ESNext",
+            "DOM",
+        ],
+        "watch": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
