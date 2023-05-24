@@ -33,7 +33,7 @@ window.openDyHelper = function () {
                 $dialog.hasClass('semi-dy-open-portal') &&
                 $dialog.find('.semi-dy-open-modal-title').text() === '添加成员' &&
                 $dialog.find('.rounded').length > 0) {
-                // log('检测到添加成员弹窗');
+                log('检测到添加成员弹窗', $dialog);
                 actionPermissionDialog($dialog);
             }
             else {
@@ -43,7 +43,6 @@ window.openDyHelper = function () {
     }
     /** 对添加成员权限弹窗处理 */
     function actionPermissionDialog($dialog) {
-        log($dialog);
         var $row = $('<div>')
             .addClass('openDyHelper_permissionRow')
             .text('选择全部：')
