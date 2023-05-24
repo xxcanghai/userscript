@@ -2,7 +2,7 @@
 // @name         抖音开放平台前端助手
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  为抖音开放平台增加一系列的在前端开发领域的功能。1.0版本为增加px转换为rpx显示
+// @description  为抖音开放平台增加辅助操作功能。
 // @author       xxcanghai
 // @match        https://developer.open-douyin.com/*
 // @exclude
