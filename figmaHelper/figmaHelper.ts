@@ -79,12 +79,12 @@ window.figmaHelper = function () {
         addCssCodePanel();
 
         function domChange(element?, option?) {
-            // log('domChange',element,option);
+            // log('domChange', element, option);
             // 解除监听
             observer.disconnect();
 
             var $panelList = $('[class*=raw_components--panel][class*=inspect_panels--inspectionPanel]');
-            $panelList.find('.inspect_panels--_propertyValue--MMDhq').each((index, span) => {
+            $panelList.find('[class*=inspect_panels--_propertyValue--]').each((index, span) => {
                 const clsPrefix = 'figmaHelper_newUnit'
                 var $span = $(span);
                 var unitText = $span.text();
@@ -243,13 +243,35 @@ window.figmaHelper = function () {
         localStorage.setItem(storageKey, format);
     }
 
+    function observerInspectTab() {
+        var inspectTabDom = $("div[name=propertiesPanelContainer] [class*=pages_panel--tab--]").get(2);
+        // log('inspectTabDom:', inspectTabDom);
+        var observer = new MutationObserver(inspectTabAttrChange);
+        observer.observe(inspectTabDom, {
+            attributes: true,
+        })
+
+        function inspectTabAttrChange(mutations: MutationRecord[], observer: MutationObserver) {
+            // log('inspectTabAttrChange:', mutations, observer)   
+            if (mutations.length == 0 || mutations[0].attributeName !== 'class') {
+                return;
+            }
+            if ($(mutations[0].target).attr('class').includes('pages_panel--tabActive--')) {
+                log('选中了inspectTab')
+                unitConvert();
+            } else {
+                // log('取消选中了inspectTab')
+            }
+        }
+    }
+
     var checkReadyTimer = 0;
     function checkReady() {
-        // log('check')
-        if ($("[class*=code_inspection_panels--codePanelContainer]").length > 0) {
+        // log('checking...')
+        if ($("div[name=propertiesPanelContainer] [class*=pages_panel--tab--]").get(2) !== undefined) {
             clearInterval(checkReadyTimer);
             // log('ready!')
-            unitConvert();
+            observerInspectTab();
         }
     }
     checkReadyTimer = setInterval(checkReady, 1000);
