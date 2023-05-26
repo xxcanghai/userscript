@@ -42,9 +42,12 @@ window.figmaHelper = function () {
                 var unitText = $span.text();
                 if ($span.hasClass(clsPrefix))
                     return;
-                var newUnitText = unitTextConvert(unitText);
-                if (newUnitText.length == 0)
-                    return;
+                // var newUnitText = unitTextConvert(unitText);
+                var newUnitText = unitText.replace(/-?\d+(?:\.\d+)?px/g, function (match, index, all) {
+                    // match为提取出来的px字符串，如 "50%-60px/2" 当中的 "60px"
+                    return unitTextConvert(match);
+                });
+                // if (newUnitText.length == 0) return;
                 var $newSpan;
                 if ($span.next(".".concat(clsPrefix)).length == 0) {
                     $newSpan = $span.clone().addClass(clsPrefix);
@@ -194,7 +197,9 @@ window.figmaHelper = function () {
         localStorage.setItem(storageKey, format);
     }
     function observerInspectTab() {
-        var inspectTabDom = $("div[name=propertiesPanelContainer] [class*=pages_panel--tab--]").get(2);
+        var inspectTabDom = $("div[name=propertiesPanelContainer] [class*=pages_panel--tab--]").filter(function (i, tab) {
+            return $(tab).attr('data-label') === 'Inspect';
+        }).get(0);
         // log('inspectTabDom:', inspectTabDom);
         var observer = new MutationObserver(inspectTabAttrChange);
         observer.observe(inspectTabDom, {
