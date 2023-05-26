@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         figma前端助手
 // @namespace    http://tampermonkey.net/
-// @version      0.3
-// @description  为figma增加一系列的在前端开发领域的功能。1.0版本为增加px转换为rpx显示
+// @version      0.2
+// @description  为figma增加一系列的在前端开发领域的功能。0.1版本为增加px转换为rpx显示
 // @author       xxcanghai
 // @match        https://www.figma.com/file/*
 // @exclude
