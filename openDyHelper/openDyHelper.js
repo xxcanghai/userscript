@@ -32,7 +32,7 @@ window.openDyHelper = function () {
                 mutations[0].type == 'childList' &&
                 $dialog.hasClass('semi-dy-open-portal') &&
                 $dialog.find('.semi-dy-open-modal-title').text() === '添加成员' &&
-                $dialog.find('.rounded').length > 0) {
+                $dialog.find('.w-full').length > 0) {
                 log('检测到添加成员弹窗', $dialog);
                 actionPermissionDialog($dialog);
             }
@@ -47,9 +47,9 @@ window.openDyHelper = function () {
             .addClass('openDyHelper_permissionRow')
             .text('选择全部：')
             .append($(buttonHtml('可编辑')).click(function () { return selectedAll(0); }))
-            .append($(buttonHtml('可查看')).click(function () { return selectedAll(1); }))
-            .append($(buttonHtml('无权限')).click(function () { return selectedAll(2); }));
-        $dialog.find('.rounded').before($row);
+            .append($(buttonHtml('可查看')).click(function () { return selectedAll(1); }));
+        // .append($(buttonHtml('无权限')).click(() => selectedAll(2)));
+        $dialog.find('.w-full').before($row);
     }
     function buttonHtml(text) {
         return "<button class=\"semi-dy-open-button semi-dy-open-button-primary semi-dy-open-button-light\" type=\"button\" aria-disabled=\"false\">\n            <span class=\"semi-dy-open-button-content\" x-semi-prop=\"children\">".concat(text, "</span>\n        </button>");
@@ -57,8 +57,12 @@ window.openDyHelper = function () {
     /** 全部选中弹窗中的表单指定项 */
     function selectedAll(index) {
         function action() {
-            $('.rounded .semi-dy-open-form-field').each(function (i, group) {
-                console.log($(group).find('label').eq(index).click());
+            $('.semi-dy-open-modal .w-full .semi-dy-open-form-field').each(function (i, group) {
+                var $radio = $(group).find('.semi-dy-open-form-field-main label').eq(index);
+                if (!$radio.hasClass('semi-dy-open-radio-checked')) {
+                    $radio.click();
+                }
+                console.log($radio);
             });
         }
         action();
